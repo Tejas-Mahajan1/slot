@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const cors = require('cors');
+require('dotenv').config();
 const bookingRoutes = require('./routes/bookingRoutes');
 // Firestore initialized in config/firebase.js
 require('./config/firebase');
@@ -9,7 +10,7 @@ require('./config/firebase');
 // Firestore initialization is handled in config/firebase
 
 app.use(express.json());
-app.use(cors({ origin: 'http://localhost:3000' }));
+app.use(cors({ origin: process.env.ALLOWED_ORIGIN || 'http://localhost:3000' }));
 
 // Root route
 app.get('/', (req, res) => {

@@ -19,10 +19,39 @@ A simple slot booking application with a Next.js + TailwindCSS frontend and a No
 - Firebase project with Firestore enabled
 - A Firebase service account key JSON file
 
+## Environment Variables (backend/.env)
+Backend supports two ways to supply Firebase credentials and allows configuring CORS:
+
+- GOOGLE_APPLICATION_CREDENTIALS: Absolute path to your service account JSON file
+- FIREBASE_SERVICE_ACCOUNT: Inline JSON (stringified) for the service account
+- ALLOWED_ORIGIN: Frontend origin for CORS (default: http://localhost:3000)
+
+Examples:
+
+Windows (PowerShell), using file path:
+```powershell
+cd backend
+"GOOGLE_APPLICATION_CREDENTIALS=C:\\path\\to\\service-account.json`nALLOWED_ORIGIN=http://localhost:3000" | Out-File -FilePath .env -Encoding utf8
+```
+
+Bash (Git Bash/macOS/Linux), using inline JSON:
+```bash
+cd backend
+cat > .env << 'EOF'
+FIREBASE_SERVICE_ACCOUNT={"type":"service_account","project_id":"your-project","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n","client_email":"...","client_id":"...","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"..."}
+ALLOWED_ORIGIN=http://localhost:3000
+EOF
+```
 
 ## Project Structure
 - `backend/` - Express server, Firestore integration
 - `frontend/` - Next.js app with TailwindCSS
+
+Backend is organized in MVC:
+- `backend/config/firebase.js` – initializes Firestore (reads env vars)
+- `backend/services/slotsService.js` – slot generation, availability checks, booking writes
+- `backend/controllers/bookingController.js` – request handlers
+- `backend/routes/bookingRoutes.js` – routes for `/slots` and `/book`
 
 ## Install & Run
 
@@ -30,7 +59,7 @@ A simple slot booking application with a Next.js + TailwindCSS frontend and a No
 ```bash
 cd backend
 npm install
-# Ensure GOOGLE_APPLICATION_CREDENTIALS is set in your shell
+# Create and fill backend/.env (see Environment Variables section above)
 npm run dev   # starts on http://localhost:3001
 ```
 
@@ -84,7 +113,7 @@ Base URL: `http://localhost:3001`
 - Slot generation: 30-minute increments from 09:00 to 17:00 (16 total)
 - Firestore collection: `bookings` with docs `{ date: string, time: string }`
 - Double booking prevention: Query on `date` and `time` before creating a booking
-- CORS: Backend allows requests from `http://localhost:3000`
+- CORS: Backend allows requests from `ALLOWED_ORIGIN` (default `http://localhost:3000`)
 
 ## Development Tips
 - If you change Firebase credentials, restart the backend.
